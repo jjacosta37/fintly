@@ -1,0 +1,24 @@
+{% extends "fintly_web/basedashboard.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div id="pagecontent" style="height: 70%;">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="spinner-border text-primary"></div>
+    </div>
+
+</div>
+
+
+
+<!-- Custom scripts for all dashboard pages-->
+<script type="text/javascript" src="{% static 'fintly_web/constants.js' %}"></script>
+<script type="text/javascript" src="{% static 'fintly_web/dashglobalfunctions.js' %}"></script>
+
+<!-- Page level custom scripts -->
+<script type="text/javascript" src="{% static 'fintly_web/connectaccount.js' %}"></script>
+
+
+{% endblock %}

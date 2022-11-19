@@ -1,0 +1,119 @@
+/* Variables */
+
+/* Setting up colors and Font */
+
+:root {
+  --clrDark: #063a48;
+  --clr: #0c748f;
+  --clrLight: #f4f9fa;
+}
+
+body {
+  margin: 0;
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #858796;
+  text-align: left;
+  background-color: #fff;
+}
+
+.logo {
+  font-family: "Montserrat", sans-serif;
+}
+
+#home-section {
+  background: url("/static/fintly_web/homeimagelarge.jpg");
+  background-size: cover;
+  /* background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center; */
+}
+
+#home-section .dark-overlay {
+  background: rgba(6, 58, 72, 0.8);
+}
+
+/* Custom classes */
+
+@media screen and (min-width: 800px) {
+  .section-padding {
+    padding-top: 60px !important;
+    padding-bottom: 85px !important;
+  }
+
+  .inner-section-padding {
+    padding-top: 100px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .bottom-section-padding {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+}
+
+.text-fintly {
+  color: var(--clrDark);
+}
+
+.bg-fintly {
+  background: var(--clr);
+  border-color: var(--clr);
+}
+
+.bg-fintlyDark {
+  background: var(--clrDark);
+  border-color: var(--clrDark);
+}
+
+.bg-fintlyLight {
+  background: var(--clrLight);
+  border-color: var(--clrLight);
+}
+
+.btn-fintly {
+  color: #fff;
+  background-color: var(--clr);
+  border-color: var(--clr); /*set the color you want here*/
+}
+.btn-fintly:hover,
+.btn-fintly:focus,
+.btn-fintly:active,
+.btn-fintly.active,
+.open > .dropdown-toggle.btn-pryma {
+  color: #fff;
+  background-color: var(--clrDark);
+  border-color: var(--clrDark); /*set the color you want here*/
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.edit-fintly-info {
+  color: #b4e5ec;
+}
+.edit-fintly-info:hover,
+.edit-fintly-info:focus,
+.edit-fintly-info:active,
+.edit-fintly-info.active,
+.open > .dropdown-toggle.edit-fintly-info {
+  color: #36b9cc;
+  border-color: #36b9cc; /*set the color you want here*/
+}
+
+.edit-fintly-primary {
+  color: #a7b9ef;
+}
+.edit-fintly-primary:hover,
+.edit-fintly-primary:focus,
+.edit-fintly-primary:active,
+.edit-fintly-primary.active,
+.open > .dropdown-toggle.edit-fintly-primary {
+  color: #4e73df;
+  border-color: #4e73df; /*set the color you want here*/
+}

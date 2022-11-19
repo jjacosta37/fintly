@@ -1,0 +1,53 @@
+<!-- prettier-ignore -->
+{% extends "fintly_web/basedashboard.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container" style="height: 70%">
+  <div class="row h-100 justify-content-center align-items-center">
+    <div class="spinner-border text-primary"></div>
+  </div>
+</div>
+
+<script
+  type="text/javascript"
+  src="{% static 'fintly_web/constants.js' %}"
+></script>
+
+<script src="{% static 'fintly_web/getcookie.js' %}"></script>
+
+<script>
+  if ($(window).width() < 960) {
+    let sidebar = document.getElementById("sidebarJQ");
+    sidebar.className =
+      "navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled";
+  }
+</script>
+
+<script type="text/javascript">
+  const csrftoken = getCookie("csrftoken");
+
+  fetch(urlPath + "updatetransactions/", {
+    method: "POST", // or 'PUT'
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrftoken,
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Transactions Updated");
+      window.location.replace("{% url 'dashboard' %}");
+    })
+    .catch((error) => {
+      console.log("error en transacciones");
+    });
+
+  setTimeout(function () {
+    window.location.replace("{% url 'dashboard' %}");
+  }, 5000);
+</script>
+
+{% endblock %}

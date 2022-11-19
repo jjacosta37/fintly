@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.belvo.io/belvo-widget-1-stable.js" async></script>
+</head>
+
+<body>
+
+    <div id="belvo"></div> <!-- anywhere inside the body -->
+
+    <script type="text/javascript" src="{% static 'fintly_web/constants.js' %}"></script>
+
+    <script src="{% static 'fintly_web/getcookie.js' %}"></script>
+
+
+    <script src="{% static 'fintly_web/belvowidget.js' %}"></script>
+
+
+    <script type='text/javascript'>
+        function successCallbackFunction(link, institution) {
+
+            const data = { link: link, institution: institution };
+            const csrftoken = getCookie('csrftoken');
+
+            fetch("{% url 'addLinkId' %}", {
+                method: 'POST', // or 'PUT'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    window.location.replace("{% url 'loading' %}")
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    window.location.replace("{% url 'loading' %}")
+                })
+
+
+
+        }
+
+        function onExitCallbackFunction(data) {
+            // Do something with the exit data.
+        }
+
+        function onEventCallbackFunction(data) {
+            // Do something with the event data.
+        }
+
+        // Function to call your server-side to generate the access_token and retrieve the your access token
+        function getAccessToken() {
+            // Make sure to change /get-access-token to point to your server-side.
+            return fetch("{% url 'generatetoken' %}", { method: 'GET' })
+                .then(response => response.json())
+                .then((data) => data.access)
+                .catch(error => console.error('Error:', error))
+        }
+
+        function openBelvoWidget(accessToken) {
+            belvoSDK.createWidget(accessToken, {
+
+                // Add your startup configuration here.
+
+                callback: (link, institution) => successCallbackFunction(link, institution),
+
+            }).build();
+        }
+
+        getAccessToken().then(openBelvoWidget) // Once the access token is retrieved, the widget is started.
+    </script>
+
+    <!-- Page level custom scripts -->
+
+
+</body>
+
+</html>
