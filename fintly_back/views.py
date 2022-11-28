@@ -112,18 +112,15 @@ def expenses_list_by_month(request):
                         .filter( user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number)
                         .values().order_by('-transaction_date')[0:5])
 
-        
-        
-
     elif category == "All":
         expense_list = (Transaction.objects
-                        .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,
+                        .filter(user_id=current_user, transaction_date__month=month_number,
                         transaction_date__year=year_number)
                         .values()
                         .order_by('-transaction_date'))
     else:
         expense_list = (Transaction.objects
-                        .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,
+                        .filter(user_id=current_user, transaction_date__month=month_number,
                         transaction_date__year=year_number,
                         category__contains=category)
                         .values()
@@ -158,7 +155,6 @@ def is_transaction(request):
     data = request.data
     transaction = Transaction.objects.get(id=data['id'])
     transaction.isTransaction=data['isTransaction']
-    # transaction.category = 'Account Movement'
     transaction.save()
     return Response(data)
 
