@@ -1,8 +1,35 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.http import HttpResponse
+import csv
+from django.contrib import admin
+
+
+
+
+
+
+def export_as_csv(self, request, queryset):
+    
+    meta = self.model._meta
+    field_names = [field.name for field in meta.fields]
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+    writer = csv.writer(response)
+
+    writer.writerow(field_names)
+    for obj in queryset:
+        row = writer.writerow([getattr(obj, field) for field in field_names])
+
+    return response
+
+export_as_csv.short_description = "Export Selected"
+
+
+
 
 # Create your models here.
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -37,5 +64,28 @@ class Transaction(models.Model):
     category = models.CharField(max_length=100)
     isTransaction = models.BooleanField(default=False)
 
-    objects = TransactionManager() # The default manager.
+    objects = TransactionManager()
+
+
+class ExportCsvMixin:
+    def export_as_csv(self, request, queryset):
+
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            row = writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+    export_as_csv.short_description = "Export Selected" 
+
+class TransactionAdmin(admin.ModelAdmin,ExportCsvMixin):
+    actions = ["export_as_csv"]
+
 
