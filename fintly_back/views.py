@@ -36,7 +36,6 @@ def montlhy_categories(request):
     
     def categories_by_month(month):
         category_groupby = (Transaction.objects
-                            .exclude(description__contains='PAGO SUC VIRT TC')
                             .filter(transaction_date__month=month.month,transaction_date__year=month.year, user_id=current_user, type='OUTFLOW', isTransaction=False)
                             .values('category')
                             .order_by('category')
@@ -54,7 +53,6 @@ def montlhy_categories(request):
 def monthly_expenses(request, month=""):
     current_user = request.user
     expenses_by_month = (Transaction.objects
-                         .exclude(description__contains='PAGO SUC VIRT TC')
                          .filter(user_id=current_user, type='OUTFLOW',isTransaction=False)
                          .annotate(month=TruncMonth('transaction_date'))
                          .values('month').order_by('month')
@@ -72,7 +70,7 @@ def monthly_expenses(request, month=""):
 def monthly_incomes(request, month=""):
     current_user = request.user
     income_by_month = (Transaction.objects
-                       .exclude(description__contains='PAGO SUC VIRT TC')
+                    #    .exclude(description__contains='PAGO SUC VIRT TC')
                        .filter(user_id=current_user, type='INFLOW',isTransaction=False)
                        .annotate(month=TruncMonth('transaction_date'))
                        .values('month')
@@ -111,26 +109,31 @@ def expenses_list_by_month(request):
     
     if short_list == 'True':
         expense_list = (Transaction.objects
-                        .exclude(description__contains='PAGO SUC VIRT TC')
-                        .filter( user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,transaction_date__year=year_number)
+                        .filter( user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number)
                         .values().order_by('-transaction_date')[0:5])
+
+        
+        
 
     elif category == "All":
         expense_list = (Transaction.objects
-                        .exclude(description__contains='PAGO SUC VIRT TC')
                         .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,
                         transaction_date__year=year_number)
                         .values()
                         .order_by('-transaction_date'))
     else:
         expense_list = (Transaction.objects
-                        .exclude(description__contains='PAGO SUC VIRT TC')
-                        .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number, 
+                        .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,
                         transaction_date__year=year_number,
                         category__contains=category)
                         .values()
                         .order_by('-amount'))
-
+    
+    for expense in expense_list:
+        if expense['isTransaction'] == True:
+            expense['category'] = 'Account Movement'
+    
+    
     return Response(expense_list)
 
 
@@ -142,7 +145,7 @@ def get_expenses_category_list(request):
     year_number = date_list[0]
     current_user = request.user
     categories_response = (Transaction.objects
-                     .filter(user_id=current_user, type='OUTFLOW', transaction_date__month=month_number,transaction_date__year=year_number,transaction=False)
+                     .filter(user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number,transaction=False)
                      .values('category')
                      .distinct())
     categories_list = [i['category'] for i in categories_response]
@@ -155,6 +158,7 @@ def is_transaction(request):
     data = request.data
     transaction = Transaction.objects.get(id=data['id'])
     transaction.isTransaction=data['isTransaction']
+    # transaction.category = 'Account Movement'
     transaction.save()
     return Response(data)
 
