@@ -9,22 +9,22 @@ from django.contrib import admin
 
 
 
-def export_as_csv(self, request, queryset):
+# def export_as_csv(self, request, queryset):
     
-    meta = self.model._meta
-    field_names = [field.name for field in meta.fields]
+#     meta = self.model._meta
+#     field_names = [field.name for field in meta.fields]
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-    writer = csv.writer(response)
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+#     writer = csv.writer(response)
 
-    writer.writerow(field_names)
-    for obj in queryset:
-        row = writer.writerow([getattr(obj, field) for field in field_names])
+#     writer.writerow(field_names)
+#     for obj in queryset:
+#         row = writer.writerow([getattr(obj, field) for field in field_names])
 
-    return response
+#     return response
 
-export_as_csv.short_description = "Export Selected"
+# export_as_csv.short_description = "Export Selected"
 
 
 
@@ -67,25 +67,25 @@ class Transaction(models.Model):
     objects = TransactionManager()
 
 
-class ExportCsvMixin:
-    def export_as_csv(self, request, queryset):
+# class ExportCsvMixin:
+#     def export_as_csv(self, request, queryset):
 
-        meta = self.model._meta
-        field_names = [field.name for field in meta.fields]
+#         meta = self.model._meta
+#         field_names = [field.name for field in meta.fields]
 
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
+#         response = HttpResponse(content_type='text/csv')
+#         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+#         writer = csv.writer(response)
 
-        writer.writerow(field_names)
-        for obj in queryset:
-            row = writer.writerow([getattr(obj, field) for field in field_names])
+#         writer.writerow(field_names)
+#         for obj in queryset:
+#             row = writer.writerow([getattr(obj, field) for field in field_names])
 
-        return response
+#         return response
 
-    export_as_csv.short_description = "Export Selected" 
+#     export_as_csv.short_description = "Export Selected" 
 
-class TransactionAdmin(admin.ModelAdmin,ExportCsvMixin):
-    actions = ["export_as_csv"]
+# class TransactionAdmin(admin.ModelAdmin,ExportCsvMixin):
+#     actions = ["export_as_csv"]
 
 
