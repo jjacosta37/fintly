@@ -135,10 +135,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-try:
-    from .local_settings import *
-except ImportError:
-    print("Looks like no local file. You must be on production")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -154,3 +150,9 @@ REST_FRAMEWORK = {
 cred = credentials.Certificate(os.path.join(BASE_DIR, r"fintly-7baeb-5eadfe737b82.json"))
 
 firebase_admin.initialize_app(cred)
+
+
+try:
+    from .local_settings import *
+except ImportError:
+    print("Looks like no local file. You must be on production")

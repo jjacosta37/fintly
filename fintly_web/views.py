@@ -99,7 +99,7 @@ def add_link_id(request):
         # transactions = belvo_api.getTransactions(link)
         # belvo_api.addTransactionsToDB(transactions, current_user)
 
-    return Response(status=status.HTTP_200_OK)
+    return Response({'User link added successfully'},status=status.HTTP_200_OK)
 
 
 

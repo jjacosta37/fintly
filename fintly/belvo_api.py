@@ -69,6 +69,7 @@ def addTransactionsToDB(transactions, user):
                 transaction_date=transactions[i]['value_date'],
                 description=transactions[i]['description'],
                 category=cat,
+                isTransaction=is_transaction_accounts_movement(transactions[i]['description'])
             )
             tranObject.save()
 
@@ -88,3 +89,13 @@ def get_balances(link_id):
     }
            for item in accounts]
     return lst
+
+# Function to determine whether a transaction is an account movement
+def is_transaction_accounts_movement(description):
+    
+    strings_tuple = ('PAGO SUC VIRT TC',
+                    'ABONO SUCURSAL VIRTUAL',
+                    'ABONO DEBITO AUTOMATIC',
+                    'PAGO AUTOM TC')
+    
+    return description.startswith(strings_tuple)

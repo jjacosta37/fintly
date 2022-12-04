@@ -6,8 +6,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from fintly import belvo_api
+from fintly_back_legacy import python_functions
 
 from .models import Transaction, UserLink
+
+from django.contrib.auth.models import User
+from datetime import datetime
+
+
 
 
 
@@ -30,7 +36,7 @@ def upload_transactions_to_db(request):
 @api_view(['GET'])
 def montlhy_categories(request):
     current_user = request.user
-    month_list = (Transaction.objects
+    categories_month_list = (Transaction.objects
                         .filter(user_id=current_user, type='OUTFLOW')
                         .dates('transaction_date','month'))
     
@@ -44,7 +50,9 @@ def montlhy_categories(request):
         response = {i['category']:i['total_price'] for i in category_groupby}
         return response
     
-    response = {i.strftime("%Y-%m"):categories_by_month(i) for i in month_list}
+    categories_map = {i.strftime("%Y-%m"):categories_by_month(i) for i in categories_month_list}
+    month_list = python_functions.last_twelveMonths_list()
+    response = {i:categories_map.get(i) or {'N/A':0} for i in month_list}
     return Response(response)
 
     
@@ -52,13 +60,16 @@ def montlhy_categories(request):
 @api_view(['GET'])
 def monthly_expenses(request, month=""):
     current_user = request.user
+    month_list = python_functions.last_twelveMonths_list()
     expenses_by_month = (Transaction.objects
                          .filter(user_id=current_user, type='OUTFLOW',isTransaction=False)
                          .annotate(month=TruncMonth('transaction_date'))
                          .values('month').order_by('month')
                          .annotate(expense=Sum('amount')))
     
-    response = {i['month'].strftime("%Y-%m"):{"expense":int(i['expense'])} for i in expenses_by_month}
+    monthly_expenses_map = {i['month'].strftime("%Y-%m"):int(i['expense']) for i in expenses_by_month}
+    
+    response = {i:{'expense':monthly_expenses_map.get(i) or 0} for i in month_list}
     
     if (month!=""):
         response = response[month]
@@ -69,15 +80,17 @@ def monthly_expenses(request, month=""):
 @api_view(['GET'])
 def monthly_incomes(request, month=""):
     current_user = request.user
+    month_list = python_functions.last_twelveMonths_list()
     income_by_month = (Transaction.objects
-                    #    .exclude(description__contains='PAGO SUC VIRT TC')
                        .filter(user_id=current_user, type='INFLOW',isTransaction=False)
                        .annotate(month=TruncMonth('transaction_date'))
                        .values('month')
                        .order_by('month')
                        .annotate(income=Sum('amount')))
+        
+    monthly_incomes_map = {i['month'].strftime("%Y-%m"):int(i['income']) for i in income_by_month}
     
-    response = {i['month'].strftime("%Y-%m"):{"income":int(i['income'])} for i in income_by_month}
+    response = {i:{'income':monthly_incomes_map.get(i) or 0} for i in month_list}
     
     if (month!=""):
         response = response[month]
@@ -109,7 +122,7 @@ def expenses_list_by_month(request):
     
     if short_list == 'True':
         expense_list = (Transaction.objects
-                        .filter( user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number)
+                        .filter( user_id=current_user)
                         .values().order_by('-transaction_date')[0:5])
 
     elif category == "All":
@@ -130,7 +143,6 @@ def expenses_list_by_month(request):
         if expense['isTransaction'] == True:
             expense['category'] = 'Account Movement'
     
-    
     return Response(expense_list)
 
 
@@ -142,7 +154,7 @@ def get_expenses_category_list(request):
     year_number = date_list[0]
     current_user = request.user
     categories_response = (Transaction.objects
-                     .filter(user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number,transaction=False)
+                     .filter(user_id=current_user, transaction_date__month=month_number,transaction_date__year=year_number,isTransaction=False)
                      .values('category')
                      .distinct())
     categories_list = [i['category'] for i in categories_response]
@@ -165,6 +177,5 @@ def is_transaction(request):
 def user_links(request):
     current_user = request.user
     links_list = UserLink.objects.filter(user_id=current_user).values('link_id')
-
     return Response(links_list)
 
