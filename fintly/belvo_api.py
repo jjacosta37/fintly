@@ -50,7 +50,7 @@ def addTransactionsToDB(transactions, user):
 
         if (Transaction.objects.filter(belvo_id=transactions[i]['id']).exists() == False):
 
-            if (transactions[i]['category'] == None):
+            if (transactions[i]['category'] == None or transactions[i]['category'] == "Unknown"):
                 cat = 'N/A'
             else:
                 cat = transactions[i]['category']
@@ -61,13 +61,13 @@ def addTransactionsToDB(transactions, user):
                 amount=transactions[i]["amount"],
                 type=transactions[i]["type"],
                 institution_name=transactions[i]['account']['institution']['name'],
-                bank_product_id=transactions[i]['account']['bank_product_id'],
-                product_name=transactions[i]['account']['name'],
-                product_number=transactions[i]['account']['public_identification_value'],
+                bank_product_id=transactions[i]['account']['bank_product_id'] or "",
+                product_name=transactions[i]['account']['name'] or "",
+                product_number=transactions[i]['account']['public_identification_value'] or "",
                 acc_category=transactions[i]['account']['category'],
                 currency=transactions[i]['account']['currency'],
                 transaction_date=transactions[i]['value_date'],
-                description=transactions[i]['description'],
+                description=transactions[i]['description'] or "",
                 category=cat,
                 isTransaction=is_transaction_accounts_movement(transactions[i]['description'])
             )
@@ -82,9 +82,9 @@ def get_balances(link_id):
     accounts = client.Accounts.create(link=link_id)
     lst = [{'institution':item['institution']['name'],
             'category':item['category'],
-            'name':item['name'],
-            'bank_product_id':item['bank_product_id'],
-            'public_identification_value':item['public_identification_value'],
+            'name':item['name'] or "",
+            'bank_product_id':item['bank_product_id'] or "",
+            'public_identification_value':item['public_identification_value'] or "",
             'balance':item['balance']['current']
     }
            for item in accounts]
