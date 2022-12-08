@@ -7,7 +7,6 @@ from datetime import date, timedelta
 BELVO_ENV = settings.BELVO_ENV
 
 
-# TODO: Store keys in Env Variables
 if BELVO_ENV == "sandbox":
     secretKey = settings.SAND_SECRET_KEY
     secretPass = settings.SAND_SECRET_PASS
@@ -99,3 +98,9 @@ def is_transaction_accounts_movement(description):
                     'PAGO AUTOM TC')
     
     return description.startswith(strings_tuple)
+
+
+def delete_user_links(links):
+    client = Client(secretKey, secretPass, url)
+    for i in links:
+        client.Links.delete(i['link_id'])
