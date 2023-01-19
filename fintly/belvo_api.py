@@ -1,4 +1,6 @@
 from belvo.client import Client
+from belvo.enums import AccessMode
+from belvo.exceptions import RequestError
 from fintly_back.models import Transaction
 from fintly import settings
 from datetime import date, timedelta
@@ -10,19 +12,26 @@ BELVO_ENV = settings.BELVO_ENV
 if BELVO_ENV == "sandbox":
     secretKey = settings.SAND_SECRET_KEY
     secretPass = settings.SAND_SECRET_PASS
-    url = "https://sandbox.belvo.com"
+    URL = "https://sandbox.belvo.com"
 elif BELVO_ENV == "development":
     secretKey = settings.DEV_SECRET_KEY
     secretPass = settings.DEV_SECRET_PASS
-    url = "https://development.belvo.com"
+    URL = "https://development.belvo.com"
 
 
 
-#  Get all transactions associated with a link
+# Generate access token for connect widget
+def generateToken():
+    client = Client(secretKey, secretPass, URL)
+    token = client.WidgetToken.create()
+    return token
 
-def getTransactions(link_id):
+
+#  POST call Get all transactions associated with a link
+
+def post_transactions(link_id):
     # Login to Belvo API
-    client = Client(secretKey, secretPass, url)
+    client = Client(secretKey, secretPass, URL)
     end_date = date.today().strftime("%Y-%m-%d")
     start_date = (date.today() - timedelta(days=180)).strftime("%Y-%m-%d")
 
@@ -33,12 +42,85 @@ def getTransactions(link_id):
     )
     return transactions
 
+#  GET call Get all transactions associated with a link
 
-# Generate access token for connect widget
-def generateToken():
-    client = Client(secretKey, secretPass, url)
-    token = client.WidgetToken.create()
-    return token
+def get_transactions(link_id):
+    transactions = []
+    client = Client(secretKey, secretPass, URL)
+    start_date = (date.today() - timedelta(days=90)).strftime("%Y-%m-%d")
+    accounts = get_accounts(link_id)
+    
+    for account_id in accounts:
+        iterator = client.Transactions.list(
+        link=link_id,
+        account=account_id,
+        value_date__gte=start_date,
+        )
+        for transaction in iterator:
+            transactions.append(transaction)
+    return transactions    
+    
+
+
+#  POST Call to get balances associated with a link
+
+def post_balances(link_id):
+    client = Client(secretKey, secretPass, URL)
+    # Retrieve accounts
+    accounts = client.Accounts.create(link=link_id)
+    lst = [{'institution':item['institution']['name'],
+            'category':item['category'],
+            'name':item['name'] or "",
+            'bank_product_id':item['bank_product_id'] or "",
+            'public_identification_value':item['public_identification_value'] or "",
+            'balance':item['balance']['current']
+    }
+           for item in accounts]
+    return lst
+
+# GET call to get balances
+
+def get_balances(link_id):
+    accounts = []
+    client = Client(secretKey, secretPass, URL)  
+    try:
+        iterator = client.Accounts.list(
+        link=link_id,
+        raise_exception = True, # Set this optional paramter
+        )
+        for account in iterator:
+            accounts.append(account)
+
+    except RequestError as e:
+        print(e)
+    else:
+        lst = [{'institution':item['institution']['name'],
+            'category':item['category'],
+            'name':item['name'] or "",
+            'bank_product_id':item['bank_product_id'] or "",
+            'public_identification_value':item['public_identification_value'] or "",
+            'balance':item['balance']['current']
+    }
+           for item in accounts]
+        return lst
+    
+# Get Accounts
+def get_accounts(link_id):
+    accounts = []
+    client = Client(secretKey, secretPass, URL)  
+    try:
+        iterator = client.Accounts.list(
+        link=link_id,
+        raise_exception = True, # Set this optional paramter
+        )
+        for account in iterator:
+            accounts.append(account)
+
+    except RequestError as e:
+        print(e)
+    else:
+        lst = [item['id'] for item in accounts]
+        return lst
 
 
 #  Save transactions JSON to Database
@@ -73,21 +155,7 @@ def addTransactionsToDB(transactions, user):
             tranObject.save()
 
 
-#  Get balances associated with a link
 
-def get_balances(link_id):
-    client = Client(secretKey, secretPass, url)
-    # Retrieve accounts
-    accounts = client.Accounts.create(link=link_id)
-    lst = [{'institution':item['institution']['name'],
-            'category':item['category'],
-            'name':item['name'] or "",
-            'bank_product_id':item['bank_product_id'] or "",
-            'public_identification_value':item['public_identification_value'] or "",
-            'balance':item['balance']['current']
-    }
-           for item in accounts]
-    return lst
 
 # Function to determine whether a transaction is an account movement
 def is_transaction_accounts_movement(description):
@@ -101,6 +169,7 @@ def is_transaction_accounts_movement(description):
 
 
 def delete_user_links(links):
-    client = Client(secretKey, secretPass, url)
+    client = Client(secretKey, secretPass, URL)
     for i in links:
         client.Links.delete(i['link_id'])
+        

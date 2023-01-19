@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'fintly_back',
     'fintly_web',
     'firebase_auth',
-    'fintly_back_legacy'
+    'fintly_back_legacy',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

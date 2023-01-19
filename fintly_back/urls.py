@@ -37,5 +37,11 @@ urlpatterns = [
     path('link/', views.user_links,
          name='link'),
     
+     path('historicalupdate/', views.transactions_historical_update_webhook,
+         name='historicalupdatewebhook'),
+     
+     path('newtransactions/', views.new_transactions_webhook,
+         name='newtransactions'),
+    
 
 ]

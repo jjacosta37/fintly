@@ -1,7 +1,10 @@
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+import json
                          
 from rest_framework.response import Response
 
@@ -12,6 +15,8 @@ from .models import Transaction, UserLink
 
 from django.contrib.auth.models import User
 from datetime import datetime
+import time
+
 
 
 
@@ -28,7 +33,7 @@ def upload_transactions_to_db(request):
         return Response({'abc'},status=status.HTTP_400_BAD_REQUEST)
     else:
         for user in user_links:
-            transactions = belvo_api.getTransactions(user.link_id)
+            transactions = belvo_api.get_transactions(user.link_id)
             belvo_api.addTransactionsToDB(transactions, current_user)
         return Response({'abc'},status=status.HTTP_200_OK) 
     
@@ -52,7 +57,7 @@ def montlhy_categories(request):
     
     categories_map = {i.strftime("%Y-%m"):categories_by_month(i) for i in categories_month_list}
     month_list = python_functions.last_twelveMonths_list()
-    response = {i:categories_map.get(i) or {'N/A':0} for i in month_list}
+    response = {i:categories_map.get(i) or {'N/A':0.0} for i in month_list}
     return Response(response)
 
     
@@ -179,3 +184,42 @@ def user_links(request):
     links_list = UserLink.objects.filter(user_id=current_user).values('link_id')
     return Response(links_list)
 
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def transactions_historical_update_webhook(request):
+    start_time = time.time()
+    data = json.loads(request.body)
+    webhook_code = data['webhook_code']
+    webhook_type = data['webhook_type']
+    link = data['link_id']
+    
+    if (webhook_type == "TRANSACTIONS" and webhook_code in ('historical_update')):
+        user_link = UserLink.objects.get(link_id=link)
+        transactions = belvo_api.get_transactions(link)
+        belvo_api.addTransactionsToDB(transactions, user_link.user)
+        print('Transactions added')
+    
+    print("--- %s seconds ---" % (time.time() - start_time))    
+    return Response()
+
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def new_transactions_webhook(request):
+    start_time = time.time()
+    data = json.loads(request.body)
+    webhook_code = data['webhook_code']
+    webhook_type = data['webhook_type']
+    link = data['link_id']
+    
+    if (webhook_type == "TRANSACTIONS" and webhook_code in ('new_transactions_available')):
+        user_link = UserLink.objects.get(link_id=link)
+        transactions = belvo_api.get_transactions(link)
+        belvo_api.addTransactionsToDB(transactions, user_link.user)
+        print('Transactions added')
+    
+    print("--- %s seconds ---" % (time.time() - start_time))    
+    return Response()
