@@ -176,6 +176,23 @@ def is_transaction(request):
     return Response(data)
 
 
+@api_view(['PUT'])
+def category(request):
+    data = request.data
+    transaction = Transaction.objects.get(id=data['id'])
+    
+    if data['category'] == 'Income & Payments':
+        transaction.category=data['category']
+        transaction.type='INFLOW'
+        transaction.save()
+    else:
+        transaction.category=data['category']
+        transaction.type='OUTFLOW'
+        transaction.save()
+        
+    return Response(data)
+
+
 
 
 @api_view(['GET'])

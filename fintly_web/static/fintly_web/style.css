@@ -3,8 +3,8 @@
 /* Setting up colors and Font */
 
 :root {
-  --clrDark: #063a48;
-  --clr: #0c748f;
+  --clrDark: #273F9D;
+  --clr: #9FB2FD;
   --clrLight: #f4f9fa;
 }
 
@@ -34,7 +34,7 @@ body {
 }
 
 #home-section .dark-overlay {
-  background: rgba(6, 58, 72, 0.8);
+  background: rgba(63, 100, 251, 0.6);
 }
 
 /* Custom classes */

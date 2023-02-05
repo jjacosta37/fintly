@@ -33,6 +33,9 @@ urlpatterns = [
     
     path('transaction/', views.is_transaction,
          name='transaction'),
+    
+        path('category/', views.category,
+         name='category'),
 
     path('link/', views.user_links,
          name='link'),

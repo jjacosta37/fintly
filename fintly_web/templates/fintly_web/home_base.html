@@ -43,12 +43,18 @@
 
   <body>
     <nav
-      class="navbar sticky-top navbar-expand-md navbar-dark bg-fintlyDark py-4 border-bottom border-secondary"
+      class="navbar sticky-top navbar-expand-md navbar-dark bg-fintlyDark py-1 border-bottom border-white"
     >
       <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">
           <!-- <i class="fas fa-fish fa-lg"></i> -->
-          <span class="logo">Fintly</span>
+          {% comment %} <span class="logo">Fintly</span> {% endcomment %}
+          <img
+            src="{% static 'fintly_web/logo10050svg.svg' %}"
+            alt=""
+            class="img-fluid"
+            width="160px"
+          />
         </a>
         <button
           class="navbar-toggler"
