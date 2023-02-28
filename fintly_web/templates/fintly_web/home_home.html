@@ -1,31 +1,38 @@
 {% extends "fintly_web/home_base.html" %} {% load static %} {% block content %}
 
-<!-- Intro Section -->
+<!-- Hero Section -->
 <header id="home-section" class="text-light">
   <div class="dark-overlay">
     <div class="container">
       <div
-        class="row align-items-center justify-content-center py-4 section-padding"
+        class="row align-items-center justify-content-center p-4 section-padding"
       >
         <div class="col-md-7">
-          <h1 class="logo">
+          <h2 class="logo">
             Experimenta una nueva forma de manejar tus gastos
-          </h1>
+          </h2>
           <br />
           <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-            repellendus natus aliquid autem molestias aspernatur facilis quidem
-            iusto quasi animi.
+            Toma el control de tus finanzas personales con <b>Fintly</b>!
+            Sincroniza todas tus diferentes cuentas y obtén una imagen detallada
+            de todos tus gastos, desde un mismo app! Y lo mejor de todo: ¡<b
+              >Fintly</b
+            >
+            es completamente <b>gratis!</b>
           </p>
           <br />
-          <a class="btn btn-fintly" style="border-radius: 25px">Unete ya!</a>
+          <a class="btn btn-fintly" style="border-radius: 25px"
+            >Descarga el app!</a
+          >
           <div class="mt-4 mb-1" style="font-size: 0.8em"></div>
           <div class="mt-2">
+            {% comment %}
             <img
               src="{% static 'fintly_web/googlepsvg.svg' %}"
               alt=""
               class="img-fluid"
             />
+            {% endcomment %}
 
             <img
               src="{% static 'fintly_web/appstore.svg' %}"
@@ -45,29 +52,38 @@
 <section id="intro-section" class="bg-light text-secondary">
   <div class="container">
     <div
-      class="row align-items-center justify-content-center py-4 inner-section-padding"
+      class="row align-items-top justify-content-center py-4 inner-section-padding px-5"
     >
-      <div class="col-md-5" data-aos="fade-up" data-aos-duration="1500">
-        <h2 class="text-fintly logo">Ten visibilidad de tus gastos</h2>
+      <div class="col-md-6 pt-5" data-aos="fade-up" data-aos-duration="1500">
+        <h2 class="text-fintly logo">
+          Resumen detallado de tus ingresos y gastos
+        </h2>
         <br />
+        <div class="text-justify">
+          Obtén un resumen claro de tus gastos e ingresos en lo que va corrido
+          del mes, para que nunca pierdas el control de tus finanzas personales.
+        </div>
+        {% comment %}
         <div class="d-flex text-justify">
           <div class="p-2">
             <i class="fas fa-check-circle fa-lg text-fintly"></i>
           </div>
           <div class="p-2">
-            Resumen detallado de todas tus cuentas. Aun si manejas productos con
-            mas de un solo banco!
+            Resumen detallado de todas tus cuentas. ¡Aun si manejas productos
+            con más de un solo banco!
           </div>
         </div>
+        {% endcomment %} {% comment %}
         <div class="d-flex">
           <div class="p-2">
             <i class="fas fa-check-circle fa-lg text-fintly"></i>
           </div>
           <div class="p-2">
-            Gastos por categorias para que puedas identificar en que se te estan
-            escapando los ahorros
+            Gastos por categorías para que puedas identificar en que se te están
+            escapando tus ahorros.
           </div>
         </div>
+        {% endcomment %} {% comment %}
         <div class="d-flex">
           <div class="p-2">
             <i class="fas fa-check-circle fa-lg text-fintly"></i>
@@ -77,46 +93,116 @@
             tiempo.
           </div>
         </div>
+        {% endcomment %}
       </div>
-      <div class="col-md-7" data-aos="fade-up" data-aos-duration="1500">
+      <div
+        class="col-md-6 px-0 pt-4 text-center"
+        data-aos="fade-up"
+        data-aos-duration="1500"
+      >
         <img
-          src="{% static 'fintly_web/imagencomputerframe.jpg' %}"
+          src="{% static 'fintly_web/homescreen.svg' %}"
           alt=""
-          class="img-fluid p-4 img-col-cel"
+          class="img-fluid img-col-cel"
+          width="350"
         />
       </div>
     </div>
   </div>
 </section>
 
-<!-- SECTIION SINCRONIZAR CUENTAS -->
+<!-- SECTIION RESUMEN HISTORICO Y CATEGORIAS -->
 
 <section class="bg-light text-secondary">
   <div class="container">
-    <div class="row align-items-center">
+    <div class="row align-items-top px-5">
+      <div class="col-md-6 pt-5" data-aos="fade-up" data-aos-duration="1300">
+        <h2 class="text-fintly logo">Gastos por categorías e históricos</h2>
+        <br />
+        <div class="text-justify">
+          ¿Sabes si estás gastando más de lo debido en algo en específico? Con
+          Fintly podrás ver un resumen de las categorías tus gastos, para que
+          tengas visibilidad de aquellos rubros en los que se te están escapando
+          tus ahorros. Además, podrás ver el histórico mes a mes, para saber si
+          estás mejorando en el control de tus finanzas.
+        </div>
+      </div>
       <div
-        class="col-md-7 pl-0 pr-2"
+        class="col-md-6 pl-0 pr-2 pt-4 text-center order-md-first"
         data-aos="fade-up"
         data-aos-duration="1300"
       >
         <img
-          src="{% static 'fintly_web/accountscellframe.svg' %}"
+          src="{% static 'fintly_web/Graphs.svg' %}"
           alt=""
-          class="img-fluid py-4 img-col-cel"
+          class="img-fluid img-col-cel"
+          width="350"
         />
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTIION TODAS TUS CUENTAS EN UN SOLO LUGAR -->
+
+<section class="bg-light text-secondary">
+  <div class="container">
+    <div class="row align-items-top px-5">
       <div
-        class="col-md-5 text-left pr-5"
+        class="col-md-6 text-left pt-5"
         data-aos="fade-up"
         data-aos-duration="1300"
       >
-        <h2 class="text-fintly logo">Sincroniza todas tus cuentas</h2>
+        <h2 class="text-fintly logo">Todas tus cuentas en un solo lugar</h2>
         <br />
         <div class="text-justify">
-          Con Fintly tendras visibilidad de todas tus cuentas desde una misma
-          plataforma. Sincroniza todos los bancos con los que manejas productos
-          y obten una imagen completa de todos tus gastos!
+          Con Fintly podrás tener una imagen completa de todas tus cuentas,
+          desde un mismo lugar!
         </div>
+      </div>
+      <div
+        class="col-md-6 pl-0 pr-2 pt-4 text-center"
+        data-aos="fade-up"
+        data-aos-duration="1300"
+      >
+        <img
+          src="{% static 'fintly_web/Homepage_accounts.svg' %}"
+          alt=""
+          class="img-fluid img-col-cel"
+          width="350"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTIION SINCRONIZA CON CUALQUIER BANCO -->
+
+<section class="bg-light text-secondary">
+  <div class="container">
+    <div class="row align-items-top px-5">
+      <div class="col-md-6 pt-5" data-aos="fade-up" data-aos-duration="1300">
+        <h2 class="text-fintly logo">
+          Sincroniza tu cuenta con los principales bancos
+        </h2>
+        <br />
+        <div class="text-justify">
+          Sincroniza todos los bancos con los que manejas productos. Tus gastos
+          se mantendrán actualizados de manera automática, sin necesidad de que
+          estes registrando cada una de tus transacciones.
+        </div>
+      </div>
+      <div
+        class="col-md-6 pl-0 pr-2 pt-4 text-center order-md-first"
+        data-aos="fade-up"
+        data-aos-duration="1300"
+      >
+        <img
+          src="{% static 'fintly_web/syncbankslight.png' %}"
+          alt=""
+          class="img-fluid img-col-cel"
+          width="350"
+        />
       </div>
     </div>
   </div>
@@ -125,6 +211,7 @@
 <!--HOME ICON SECTION  -->
 <section id="home-icon-section" class="pb-2 pt-4 pb-5 bg-light text-secondary">
   <div class="container">
+    {% comment %}
     <div
       class="row bottom-section-padding"
       data-aos="fade-up"
@@ -155,10 +242,11 @@
         </p>
       </div>
     </div>
+    {% endcomment %}
     <div class="row mt-2">
       <div class="col text-center" data-aos="fade-in" data-aos-duration="1300">
         <a class="btn btn-fintly rounded-pill mt-4 font" href="#"
-          >Crea tu cuenta ya!</a
+          >Descarga el app ya!</a
         >
       </div>
     </div>
@@ -175,6 +263,11 @@
           Copyright &copy;
           <span id="year"></span>
         </p>
+        <a
+          style="font-size: 0.8em; color: white"
+          href="{% url 'privacypolicy' %}"
+          >Política de Privacidad</a
+        >
       </div>
     </div>
   </div>

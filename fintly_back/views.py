@@ -24,18 +24,6 @@ import time
 
 
 ######### API VIEWS APP #########
-
-@api_view(['POST'])
-def upload_transactions_to_db(request):
-    current_user = request.user
-    user_links = UserLink.objects.filter(user=current_user)
-    if list(user_links) == []:
-        return Response({'abc'},status=status.HTTP_400_BAD_REQUEST)
-    else:
-        for user in user_links:
-            transactions = belvo_api.get_transactions(user.link_id)
-            belvo_api.addTransactionsToDB(transactions, current_user)
-        return Response({'abc'},status=status.HTTP_200_OK) 
     
     
 @api_view(['GET'])
@@ -240,3 +228,19 @@ def new_transactions_webhook(request):
     
     print("--- %s seconds ---" % (time.time() - start_time))    
     return Response()
+
+
+
+# Deprecated View. This was to make the call as a POST call to Belvo
+
+# @api_view(['POST'])
+# def upload_transactions_to_db(request):
+#     current_user = request.user
+#     user_links = UserLink.objects.filter(user=current_user)
+#     if list(user_links) == []:
+#         return Response({'abc'},status=status.HTTP_400_BAD_REQUEST)
+#     else:
+#         for user in user_links:
+#             transactions = belvo_api.get_transactions(user.link_id)
+#             belvo_api.addTransactionsToDB(transactions, current_user)
+#         return Response({'abc'},status=status.HTTP_200_OK) 

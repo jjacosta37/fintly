@@ -7,8 +7,8 @@ urlpatterns = [
     path('monthlycategories/', views.montlhy_categories,
          name='monthly_categories'),
     
-    path('updatetransactions/', views.upload_transactions_to_db,
-         name='updatetransactions'),
+#     path('updatetransactions/', views.upload_transactions_to_db,
+#          name='updatetransactions'),
     
     path('monthlyexpenses/', views.monthly_expenses,
          name='monthly_expenses'),

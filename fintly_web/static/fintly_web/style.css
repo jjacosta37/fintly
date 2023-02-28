@@ -3,7 +3,7 @@
 /* Setting up colors and Font */
 
 :root {
-  --clrDark: #273F9D;
+  --clrDark: #3F64FB;
   --clr: #9FB2FD;
   --clrLight: #f4f9fa;
 }
@@ -34,7 +34,7 @@ body {
 }
 
 #home-section .dark-overlay {
-  background: rgba(63, 100, 251, 0.6);
+  background: rgba(63, 100, 251, 0.8);
 }
 
 /* Custom classes */
