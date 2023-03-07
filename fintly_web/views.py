@@ -27,6 +27,9 @@ def home(request):
 def privacy_policy_screen(request):
     return render(request, 'fintly_web/privacy_policy.html')
 
+def faq(request):
+    return render(request, 'fintly_web/faq.html')
+
 
 ######## Auth views ############
 

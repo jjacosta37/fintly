@@ -7,6 +7,7 @@ urlpatterns = [
     # Home and Auth
     path('', views.home, name='home'),
     path('politica-de-privacidad/', views.privacy_policy_screen, name='privacypolicy'),
+    path('soporte/', views.faq, name='faq'),
     path('generatetoken/', views.generate_token, name='generatetoken'),
     path('addlinkid/', views.add_link_id, name='addLinkId'),
     

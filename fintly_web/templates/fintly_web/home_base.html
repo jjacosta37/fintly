@@ -72,6 +72,44 @@
       </div>
     </nav>
     {% block content %}{% endblock %}
+    <!-- FOOTER -->
+    <footer id=" main-footer" class="bg-fintlyDark text-light">
+      <div class="container">
+        <div class="row">
+          <div class="col text-center py-4">
+            <img
+              src="{% static 'fintly_web/logo1000.svg' %}"
+              alt=""
+              class="img-fluid"
+              width="120px"
+            />
+            <p style="font-size: 0.6em">
+              Copyright &copy;
+              <span id="year"></span>
+            </p>
+            <div class="row justify-content-center">
+              <div class="col-md-2 p-0">
+                <a
+                  style="font-size: 0.7em; color: white"
+                  href="{% url 'privacypolicy' %}"
+                  >Política de Privacidad</a
+                >
+                <a style="font-size: 0.7em; color: white" href="{% url 'faq' %}"
+                  >Preguntas Frecuentes</a
+                >
+              </div>
+              {% comment %}
+              <div class="col-md-2">
+                <a style="font-size: 0.7em; color: white" href="{% url 'faq' %}"
+                  >Preguntas Frecuentes</a
+                >
+              </div>
+              {% endcomment %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
