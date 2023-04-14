@@ -99,7 +99,7 @@ def get_balances(link_id):
             'name':item['name'] or "",
             'bank_product_id':item['bank_product_id'] or "",
             'public_identification_value':item['public_identification_value'] or "",
-            'balance':item['balance']['current']
+            'balance':float(item['balance']['current'])
     }
            for item in accounts]
         return lst
