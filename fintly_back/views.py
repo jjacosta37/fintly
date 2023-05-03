@@ -16,12 +16,14 @@ from .models import Transaction, UserLink
 from django.contrib.auth.models import User
 from datetime import datetime
 import time
+# import settings
+from mixpanel import Mixpanel
+from fintly import settings
 
 
 
 
-
-
+mp = Mixpanel(settings.MIXPANEL_TOKEN)
 
 ######### API VIEWS APP #########
     
@@ -75,7 +77,7 @@ def monthly_incomes(request, month=""):
     current_user = request.user
     month_list = python_functions.last_twelveMonths_list()
     income_by_month = (Transaction.objects
-                       .filter(user_id=current_user, type='INFLOW',isTransaction=False)
+                       .filter(user_id=current_user, type='INFLOW', category='Income & Payments', isTransaction=False)
                        .annotate(month=TruncMonth('transaction_date'))
                        .values('month')
                        .order_by('month')
@@ -115,7 +117,7 @@ def expenses_list_by_month(request):
     
     if short_list == 'True':
         expense_list = (Transaction.objects
-                        .filter( user_id=current_user)
+                        .filter(user_id=current_user)
                         .values().order_by('-transaction_date')[0:5])
 
     elif category == "All":
@@ -131,10 +133,7 @@ def expenses_list_by_month(request):
                         category__contains=category)
                         .values()
                         .order_by('-amount'))
-    
-    for expense in expense_list:
-        if expense['isTransaction'] == True:
-            expense['category'] = 'Account Movement'
+
     
     return Response(expense_list)
 
@@ -168,16 +167,9 @@ def is_transaction(request):
 def category(request):
     data = request.data
     transaction = Transaction.objects.get(id=data['id'])
-    
-    if data['category'] == 'Income & Payments':
-        transaction.category=data['category']
-        transaction.type='INFLOW'
-        transaction.save()
-    else:
-        transaction.category=data['category']
-        transaction.type='OUTFLOW'
-        transaction.save()
-        
+    transaction.category=data['category']
+    transaction.save()
+
     return Response(data)
 
 
@@ -198,12 +190,18 @@ def transactions_historical_update_webhook(request):
     data = json.loads(request.body)
     webhook_code = data['webhook_code']
     webhook_type = data['webhook_type']
+    historical_data = data['data']
     link = data['link_id']
     
     if (webhook_type == "TRANSACTIONS" and webhook_code in ('historical_update')):
         user_link = UserLink.objects.get(link_id=link)
         transactions = belvo_api.get_transactions(link)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
+        mp.track(user_link.user.username, 'Historical Update Webhook', {
+    'Data': historical_data
+})
+        
+
         print('Transactions added')
     
     print("--- %s seconds ---" % (time.time() - start_time))    
@@ -244,3 +242,12 @@ def new_transactions_webhook(request):
 #             transactions = belvo_api.get_transactions(user.link_id)
 #             belvo_api.addTransactionsToDB(transactions, current_user)
 #         return Response({'abc'},status=status.HTTP_200_OK) 
+
+
+# @api_view(['GET'])
+# def test(request):
+#     current_user = User.objects.get(username='jjacosta37@gmail.com')
+#     transactions = (Transaction.objects
+#         .filter(user_id=current_user, amount=1435.8))
+#     print(transactions)
+#     return Response('hola')

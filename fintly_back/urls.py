@@ -45,6 +45,5 @@ urlpatterns = [
      
      path('newtransactions/', views.new_transactions_webhook,
          name='newtransactions'),
-    
 
 ]

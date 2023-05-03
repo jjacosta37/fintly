@@ -28,6 +28,9 @@ SAND_SECRET_PASS = env('SAND_SECRET_PASS')
 DEV_SECRET_KEY = env('DEV_SECRET_KEY')
 DEV_SECRET_PASS = env('DEV_SECRET_PASS')
 
+# Mixpanel Token
+MIXPANEL_TOKEN = env('MIXPANEL_TOKEN_DEV')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

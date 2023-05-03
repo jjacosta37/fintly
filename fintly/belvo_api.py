@@ -106,6 +106,15 @@ def get_balances(link_id):
     
 # Get Accounts
 def get_accounts(link_id):
+    
+    # Function to reorganize accounts list so that credit cards and loan accounts are last
+    def reorganize_accounts(lst):
+        lst_no_credit_loan = [item for item in lst if item['category'] not in ['CREDIT_CARD', 'LOAN_ACCOUNT']]
+        lst_credit_loan = [item for item in lst if item['category'] in ['CREDIT_CARD', 'LOAN_ACCOUNT']]
+        
+        return lst_no_credit_loan + lst_credit_loan
+    
+    # Get accounts from belvo and return list. Reorganize list so credit card and loan accounts are last
     accounts = []
     client = Client(secretKey, secretPass, URL)  
     try:
@@ -119,6 +128,7 @@ def get_accounts(link_id):
     except RequestError as e:
         print(e)
     else:
+        accounts = reorganize_accounts(accounts)
         lst = [item['id'] for item in accounts]
         return lst
 
@@ -129,12 +139,23 @@ def addTransactionsToDB(transactions, user):
 
     for i in range(len(transactions)):
 
+        # Checking that the transaction does not exist already
         if (Transaction.objects.filter(belvo_id=transactions[i]['id']).exists() == False):
-
-            if (transactions[i]['category'] == None or transactions[i]['category'] == "Unknown"):
-                cat = 'N/A'
-            else:
-                cat = transactions[i]['category']
+            
+            # Adding category to transactions with None or Unknown category
+            cat = 'N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category']
+            
+            # Marking all savings and checkings accounts inflows as income
+            cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (transactions[i]["type"]=='INFLOW') else transactions[i]['category']
+             
+            # Check debit outflows for credit card payments and loan payments with mark_credit_card_payment function
+            isTransaction = False    
+            if (transactions[i]['account']['category'] in ['CREDIT_CARD', 'LOAN_ACCOUNT']) and (transactions[i]["type"]=='INFLOW'):
+                isTransaction = mark_credit_card_payment(transaction=transactions[i], user=user)
+            
+            # Check for credit card payments with is_transaction_accounts_movement function    
+            isTransaction = True if is_transaction_accounts_movement(transactions[i]['description']) == True else isTransaction
+                
 
             tranObject = Transaction(
                 user_id=user,
@@ -150,14 +171,14 @@ def addTransactionsToDB(transactions, user):
                 transaction_date=transactions[i]['value_date'],
                 description=transactions[i]['description'] or "",
                 category=cat,
-                isTransaction=is_transaction_accounts_movement(transactions[i]['description'])
+                isTransaction=isTransaction
             )
             tranObject.save()
 
 
 
 
-# Function to determine whether a transaction is an account movement
+# Function to determine whether a transaction is an account movement using list with descriptions of transaction. Returns true or false
 def is_transaction_accounts_movement(description):
     
     strings_tuple = ('PAGO SUC VIRT TC',
@@ -166,6 +187,20 @@ def is_transaction_accounts_movement(description):
                     'PAGO AUTOM TC')
     
     return description.startswith(strings_tuple)
+
+
+# Function to determine whether a transaction is credit card payments. It takes credit card payments and looks for transactions with the exact same value. Returns true if it is a credit card transaction and false if not
+def mark_credit_card_payment(transaction, user):
+    if (Transaction.objects
+        .exclude(acc_category='CREDIT_CARD')
+        .filter(user_id=user, amount=transaction["amount"]).exists() == True):
+        transaction_to_edit = Transaction.objects.get(user_id=user, amount=transaction["amount"])
+        transaction_to_edit.isTransaction = True
+        transaction_to_edit.save()
+        return True
+    return False
+        
+    
 
 
 def delete_user_links(links):
