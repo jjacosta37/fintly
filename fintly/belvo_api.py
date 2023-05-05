@@ -142,11 +142,12 @@ def addTransactionsToDB(transactions, user):
         # Checking that the transaction does not exist already
         if (Transaction.objects.filter(belvo_id=transactions[i]['id']).exists() == False):
             
-            # Adding category to transactions with None or Unknown category
-            cat = 'N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category']
             
             # Marking all savings and checkings accounts inflows as income
             cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (transactions[i]["type"]=='INFLOW') else transactions[i]['category']
+            
+            # Adding category to transactions with None or Unknown category
+            cat = 'N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category']
              
             # Check debit outflows for credit card payments and loan payments with mark_credit_card_payment function
             isTransaction = False    
