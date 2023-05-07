@@ -4,6 +4,8 @@ from belvo.exceptions import RequestError
 from fintly_back.models import Transaction
 from fintly import settings
 from datetime import date, timedelta
+import time
+
 
 # Choose Enviroment
 BELVO_ENV = settings.BELVO_ENV
@@ -51,14 +53,31 @@ def get_transactions(link_id):
     accounts = get_accounts(link_id)
     
     for account_id in accounts:
-        iterator = client.Transactions.list(
-        link=link_id,
-        account=account_id,
-        value_date__gte=start_date,
-        )
-        for transaction in iterator:
-            transactions.append(transaction)
-    return transactions    
+        max_retries = 4
+        retry_count = 0
+        delay = 3
+        
+        while retry_count <= max_retries:
+            try:
+                iterator = client.Transactions.list(
+                link=link_id,
+                account=account_id,
+                value_date__gte=start_date,
+                )
+                for transaction in iterator:
+                    transactions.append(transaction)
+                break
+                    
+            except Exception as e:
+                if retry_count >= max_retries:
+                    raise e
+                else:
+                    retry_count +=1
+                    print(f"Error on retry {retry_count}: {e}")
+                    time.sleep(delay)
+                    delay *= 2  
+        
+    return transactions# Double the delay time after each retry
     
 
 
@@ -117,20 +136,31 @@ def get_accounts(link_id):
     # Get accounts from belvo and return list. Reorganize list so credit card and loan accounts are last
     accounts = []
     client = Client(secretKey, secretPass, URL)  
-    try:
-        iterator = client.Accounts.list(
-        link=link_id,
-        raise_exception = True, # Set this optional paramter
-        )
-        for account in iterator:
-            accounts.append(account)
-
-    except RequestError as e:
-        print(e)
-    else:
-        accounts = reorganize_accounts(accounts)
-        lst = [item['id'] for item in accounts]
-        return lst
+    max_retries = 4
+    retry_count = 0
+    delay = 3
+    
+    while retry_count <= max_retries:
+        try:
+            iterator = client.Accounts.list(
+            link=link_id,
+            raise_exception = True, # Set this optional paramter
+            )
+            for account in iterator:
+                accounts.append(account)
+            accounts = reorganize_accounts(accounts)
+            lst = [item['id'] for item in accounts]
+            return lst
+        except Exception as e:
+            if retry_count >= max_retries:
+                raise e
+            else:
+                retry_count +=1
+                print(f"Error on retry {retry_count}: {e}")
+                time.sleep(delay)
+                delay *= 2  
+            
+           
 
 
 #  Save transactions JSON to Database
@@ -142,12 +172,10 @@ def addTransactionsToDB(transactions, user):
         # Checking that the transaction does not exist already
         if (Transaction.objects.filter(belvo_id=transactions[i]['id']).exists() == False):
             
-            
             # Marking all savings and checkings accounts inflows as income
-            cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (transactions[i]["type"]=='INFLOW') else transactions[i]['category']
-            
             # Adding category to transactions with None or Unknown category
-            cat = 'N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category']
+            cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (transactions[i]["type"]=='INFLOW') else ('N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category'])
+
              
             # Check debit outflows for credit card payments and loan payments with mark_credit_card_payment function
             isTransaction = False    
