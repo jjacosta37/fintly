@@ -24,8 +24,12 @@ elif BELVO_ENV == "development":
 
 # Generate access token for connect widget
 def generateToken():
+    widget = {
+    "branding": {
+      "company_name": "Fintly",
+    } } 
     client = Client(secretKey, secretPass, URL)
-    token = client.WidgetToken.create()
+    token = client.WidgetToken.create(widget=widget)
     return token
 
 
@@ -223,14 +227,13 @@ def mark_credit_card_payment(transaction, user):
     if (Transaction.objects
         .exclude(acc_category='CREDIT_CARD')
         .filter(user_id=user, amount=transaction["amount"]).exists() == True):
-        transaction_to_edit = Transaction.objects.get(user_id=user, amount=transaction["amount"])
+        transaction_to_edit = Transaction.objects.filter(user_id=user, amount=transaction["amount"])[0]
         transaction_to_edit.isTransaction = True
         transaction_to_edit.save()
         return True
     return False
         
     
-
 
 def delete_user_links(links):
     client = Client(secretKey, secretPass, URL)
