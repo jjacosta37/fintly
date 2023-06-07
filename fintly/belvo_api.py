@@ -219,7 +219,7 @@ def is_transaction_accounts_movement(description):
                     'ABONO DEBITO AUTOMATIC',
                     'PAGO AUTOM TC')
     
-    return description.startswith(strings_tuple)
+    return description and description.startswith(strings_tuple)
 
 
 # Function to determine whether a transaction is credit card payments. It takes credit card payments and looks for transactions with the exact same value. Returns true if it is a credit card transaction and false if not
