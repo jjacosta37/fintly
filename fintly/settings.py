@@ -20,7 +20,6 @@ env = environ.Env()
 environ.Env.read_env()
 
 
-
 # Belvo Variables
 BELVO_ENV = 'development'
 SAND_SECRET_KEY = env('SAND_SECRET_KEY')
@@ -51,7 +50,6 @@ INSTALLED_APPS = [
     'fintly_back',
     'fintly_web',
     'firebase_auth',
-    'fintly_back_legacy',
     'rest_framework.authtoken',
 ]
 
@@ -88,7 +86,6 @@ WSGI_APPLICATION = 'fintly.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 
 
 DATABASES = {
@@ -157,7 +154,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-cred = credentials.Certificate(os.path.join(BASE_DIR, r"fintly-7baeb-5eadfe737b82.json"))
+cred = credentials.Certificate(os.path.join(
+    BASE_DIR, r"fintly-7baeb-5eadfe737b82.json"))
 
 firebase_admin.initialize_app(cred)
 

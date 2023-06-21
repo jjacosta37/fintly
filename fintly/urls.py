@@ -20,9 +20,5 @@ urlpatterns = [
     path('lupita/', admin.site.urls),
     path('', include('fintly_web.urls')),
     path('api/v2/', include('fintly_back.urls')),
-    path('api/v1/', include('fintly_back_legacy.urls')),
     path('auth/', include('firebase_auth.urls')),
-
-
-
 ]
