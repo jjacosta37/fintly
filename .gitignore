@@ -10,3 +10,5 @@ media
 fintly-7baeb-5eadfe737b82.json
 .env
 fintlymacvenv
+fintlyvenv
+.vscode/* 
