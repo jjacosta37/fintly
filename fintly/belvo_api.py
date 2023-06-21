@@ -1,11 +1,11 @@
-from belvo.client import Client
-from belvo.enums import AccessMode
-from belvo.exceptions import RequestError
-from fintly_back.models import Transaction
-from fintly import settings
-from datetime import date, timedelta
 import time
+from datetime import date, timedelta
 
+from belvo.client import Client
+from belvo.exceptions import RequestError
+
+from fintly import settings
+from fintly_back.models import Transaction
 
 # Choose Enviroment
 BELVO_ENV = settings.BELVO_ENV
@@ -21,13 +21,12 @@ elif BELVO_ENV == "development":
     URL = "https://development.belvo.com"
 
 
-
 # Generate access token for connect widget
 def generateToken():
     widget = {
-    "branding": {
-      "company_name": "Fintly",
-    } } 
+        "branding": {
+            "company_name": "Fintly",
+        }}
     client = Client(secretKey, secretPass, URL)
     token = client.WidgetToken.create(widget=widget)
     return token
@@ -50,39 +49,40 @@ def post_transactions(link_id):
 
 #  GET call Get all transactions associated with a link
 
-def get_transactions(link_id):
+
+def get_transactions(link_id, days_of_transactions):
     transactions = []
     client = Client(secretKey, secretPass, URL)
-    start_date = (date.today() - timedelta(days=90)).strftime("%Y-%m-%d")
+    start_date = (
+        date.today() - timedelta(days=days_of_transactions)).strftime("%Y-%m-%d")
     accounts = get_accounts(link_id)
-    
+
     for account_id in accounts:
         max_retries = 4
         retry_count = 0
         delay = 3
-        
+
         while retry_count <= max_retries:
             try:
                 iterator = client.Transactions.list(
-                link=link_id,
-                account=account_id,
-                value_date__gte=start_date,
+                    link=link_id,
+                    account=account_id,
+                    value_date__gte=start_date,
                 )
                 for transaction in iterator:
                     transactions.append(transaction)
                 break
-                    
+
             except Exception as e:
                 if retry_count >= max_retries:
                     raise e
                 else:
-                    retry_count +=1
+                    retry_count += 1
                     print(f"Error on retry {retry_count}: {e}")
                     time.sleep(delay)
-                    delay *= 2  
-        
-    return transactions# Double the delay time after each retry
-    
+                    delay *= 2
+
+    return transactions  # Double the delay time after each retry
 
 
 #  POST Call to get balances associated with a link
@@ -91,25 +91,26 @@ def post_balances(link_id):
     client = Client(secretKey, secretPass, URL)
     # Retrieve accounts
     accounts = client.Accounts.create(link=link_id)
-    lst = [{'institution':item['institution']['name'],
+    lst = [{'institution': item['institution']['name'],
             'category':item['category'],
             'name':item['name'] or "",
             'bank_product_id':item['bank_product_id'] or "",
             'public_identification_value':item['public_identification_value'] or "",
             'balance':item['balance']['current']
-    }
+            }
            for item in accounts]
     return lst
 
 # GET call to get balances
 
+
 def get_balances(link_id):
     accounts = []
-    client = Client(secretKey, secretPass, URL)  
+    client = Client(secretKey, secretPass, URL)
     try:
         iterator = client.Accounts.list(
-        link=link_id,
-        raise_exception = True, # Set this optional paramter
+            link=link_id,
+            raise_exception=True,  # Set this optional paramter
         )
         for account in iterator:
             accounts.append(account)
@@ -117,38 +118,41 @@ def get_balances(link_id):
     except RequestError as e:
         print(e)
     else:
-        lst = [{'institution':item['institution']['name'],
-            'category':item['category'],
-            'name':item['name'] or "",
-            'bank_product_id':item['bank_product_id'] or "",
-            'public_identification_value':item['public_identification_value'] or "",
-            'balance':float(item['balance']['current'])
-    }
-           for item in accounts]
+        lst = [{'institution': item['institution']['name'],
+                'category':item['category'],
+                'name':item['name'] or "",
+                'bank_product_id':item['bank_product_id'] or "",
+                'public_identification_value':item['public_identification_value'] or "",
+                'balance':float(item['balance']['current'])
+                }
+               for item in accounts]
         return lst
-    
+
 # Get Accounts
+
+
 def get_accounts(link_id):
-    
     # Function to reorganize accounts list so that credit cards and loan accounts are last
     def reorganize_accounts(lst):
-        lst_no_credit_loan = [item for item in lst if item['category'] not in ['CREDIT_CARD', 'LOAN_ACCOUNT']]
-        lst_credit_loan = [item for item in lst if item['category'] in ['CREDIT_CARD', 'LOAN_ACCOUNT']]
-        
+        lst_no_credit_loan = [item for item in lst if item['category'] not in [
+            'CREDIT_CARD', 'LOAN_ACCOUNT']]
+        lst_credit_loan = [item for item in lst if item['category'] in [
+            'CREDIT_CARD', 'LOAN_ACCOUNT']]
+
         return lst_no_credit_loan + lst_credit_loan
-    
+
     # Get accounts from belvo and return list. Reorganize list so credit card and loan accounts are last
     accounts = []
-    client = Client(secretKey, secretPass, URL)  
+    client = Client(secretKey, secretPass, URL)
     max_retries = 4
     retry_count = 0
     delay = 3
-    
+
     while retry_count <= max_retries:
         try:
             iterator = client.Accounts.list(
-            link=link_id,
-            raise_exception = True, # Set this optional paramter
+                link=link_id,
+                raise_exception=True,  # Set this optional paramter
             )
             for account in iterator:
                 accounts.append(account)
@@ -159,12 +163,10 @@ def get_accounts(link_id):
             if retry_count >= max_retries:
                 raise e
             else:
-                retry_count +=1
+                retry_count += 1
                 print(f"Error on retry {retry_count}: {e}")
                 time.sleep(delay)
-                delay *= 2  
-            
-           
+                delay *= 2
 
 
 #  Save transactions JSON to Database
@@ -175,20 +177,21 @@ def addTransactionsToDB(transactions, user):
 
         # Checking that the transaction does not exist already
         if (Transaction.objects.filter(belvo_id=transactions[i]['id']).exists() == False):
-            
+
             # Marking all savings and checkings accounts inflows as income
             # Adding category to transactions with None or Unknown category
-            cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (transactions[i]["type"]=='INFLOW') else ('N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category'])
+            cat = 'Income & Payments' if transactions[i]['account']['category'] in ['SAVINGS_ACCOUNT', 'CHECKING_ACCOUNT'] and (
+                transactions[i]["type"] == 'INFLOW') else ('N/A' if transactions[i]['category'] in [None, 'Unknown'] else transactions[i]['category'])
 
-             
             # Check debit outflows for credit card payments and loan payments with mark_credit_card_payment function
-            isTransaction = False    
-            if (transactions[i]['account']['category'] in ['CREDIT_CARD', 'LOAN_ACCOUNT']) and (transactions[i]["type"]=='INFLOW'):
-                isTransaction = mark_credit_card_payment(transaction=transactions[i], user=user)
-            
-            # Check for credit card payments with is_transaction_accounts_movement function    
-            isTransaction = True if is_transaction_accounts_movement(transactions[i]['description']) == True else isTransaction
-                
+            isTransaction = False
+            if (transactions[i]['account']['category'] in ['CREDIT_CARD', 'LOAN_ACCOUNT']) and (transactions[i]["type"] == 'INFLOW'):
+                isTransaction = mark_credit_card_payment(
+                    transaction=transactions[i], user=user)
+
+            # Check for credit card payments with is_transaction_accounts_movement function
+            isTransaction = True if is_transaction_accounts_movement(
+                transactions[i]['description']) == True else isTransaction
 
             tranObject = Transaction(
                 user_id=user,
@@ -209,16 +212,14 @@ def addTransactionsToDB(transactions, user):
             tranObject.save()
 
 
-
-
 # Function to determine whether a transaction is an account movement using list with descriptions of transaction. Returns true or false
 def is_transaction_accounts_movement(description):
-    
+
     strings_tuple = ('PAGO SUC VIRT TC',
-                    'ABONO SUCURSAL VIRTUAL',
-                    'ABONO DEBITO AUTOMATIC',
-                    'PAGO AUTOM TC')
-    
+                     'ABONO SUCURSAL VIRTUAL',
+                     'ABONO DEBITO AUTOMATIC',
+                     'PAGO AUTOM TC')
+
     return description and description.startswith(strings_tuple)
 
 
@@ -226,17 +227,16 @@ def is_transaction_accounts_movement(description):
 def mark_credit_card_payment(transaction, user):
     if (Transaction.objects
         .exclude(acc_category='CREDIT_CARD')
-        .filter(user_id=user, amount=transaction["amount"]).exists() == True):
-        transaction_to_edit = Transaction.objects.filter(user_id=user, amount=transaction["amount"])[0]
+            .filter(user_id=user, amount=transaction["amount"]).exists() == True):
+        transaction_to_edit = Transaction.objects.filter(
+            user_id=user, amount=transaction["amount"])[0]
         transaction_to_edit.isTransaction = True
         transaction_to_edit.save()
         return True
     return False
-        
-    
+
 
 def delete_user_links(links):
     client = Client(secretKey, secretPass, URL)
     for i in links:
         client.Links.delete(i['link_id'])
-        

@@ -1,26 +1,19 @@
+import json
+import time
+
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
-from rest_framework import status
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from mixpanel import Mixpanel
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import IsAuthenticated
-import json
-
 from rest_framework.response import Response
 
-from fintly import belvo_api
-
-from .models import Transaction, UserLink
-
-from django.contrib.auth.models import User
-from datetime import datetime
-import time
-# import settings
-from mixpanel import Mixpanel
-from fintly import settings
+from fintly import belvo_api, settings
 
 from . import python_functions
-
+from .models import Transaction, UserLink
 
 mp = Mixpanel(settings.MIXPANEL_TOKEN)
 
@@ -99,9 +92,9 @@ def monthly_incomes(request, month=""):
 @api_view(['GET'])
 def get_user_balances(request):
     current_user = request.user
-    user_links = UserLink.objects.filter(user=current_user)
+    link_ids = UserLink.objects.filter(user=current_user)
     balances = []
-    for user in user_links:
+    for user in link_ids:
         balances.append(belvo_api.get_balances(user.link_id))
 
     return Response(balances)
@@ -111,7 +104,7 @@ def get_user_balances(request):
 def expenses_list_by_month(request):
     date = request.query_params.get('month')
     date_list = date.split('-')
-    category = request.query_params.get('category')
+    requested_category = request.query_params.get('category')
     short_list = request.query_params.get('short_list')
     month_number = date_list[1]
     year_number = date_list[0]
@@ -122,7 +115,7 @@ def expenses_list_by_month(request):
                         .filter(user_id=current_user)
                         .values().order_by('-transaction_date')[0:5])
 
-    elif category == "All":
+    elif requested_category == "All":
         expense_list = (Transaction.objects
                         .filter(user_id=current_user, transaction_date__month=month_number,
                                 transaction_date__year=year_number)
@@ -132,7 +125,7 @@ def expenses_list_by_month(request):
         expense_list = (Transaction.objects
                         .filter(user_id=current_user, transaction_date__month=month_number,
                                 transaction_date__year=year_number,
-                                category__contains=category)
+                                category__contains=requested_category)
                         .values()
                         .order_by('-amount'))
 
@@ -195,7 +188,8 @@ def transactions_historical_update_webhook(request):
 
     if (webhook_type == "TRANSACTIONS" and webhook_code in ('historical_update')):
         user_link = UserLink.objects.get(link_id=link)
-        transactions = belvo_api.get_transactions(link)
+        transactions = belvo_api.get_transactions(
+            link_id=link, days_of_transactions=120)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
         mp.track(user_link.user.username, 'Historical Update Webhook', {
             'Data': historical_data
@@ -219,7 +213,8 @@ def new_transactions_webhook(request):
 
     if (webhook_type == "TRANSACTIONS" and webhook_code in ('new_transactions_available')):
         user_link = UserLink.objects.get(link_id=link)
-        transactions = belvo_api.get_transactions(link)
+        transactions = belvo_api.get_transactions(
+            link_id=link, days_of_transactions=4)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
         print('Transactions added')
 
