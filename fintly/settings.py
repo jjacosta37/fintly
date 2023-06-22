@@ -21,11 +21,13 @@ environ.Env.read_env()
 
 
 # Belvo Variables
-BELVO_ENV = 'development'
+BELVO_ENV = 'production'
 SAND_SECRET_KEY = env('SAND_SECRET_KEY')
 SAND_SECRET_PASS = env('SAND_SECRET_PASS')
 DEV_SECRET_KEY = env('DEV_SECRET_KEY')
 DEV_SECRET_PASS = env('DEV_SECRET_PASS')
+PROD_SECRET_KEY = env('PROD_SECRET_KEY')
+PROD_SECRET_PASS = env('PROD_SECRET_PASS')
 
 # Mixpanel Token
 MIXPANEL_TOKEN = env('MIXPANEL_TOKEN_DEV')

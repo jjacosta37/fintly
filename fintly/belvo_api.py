@@ -19,6 +19,10 @@ elif BELVO_ENV == "development":
     secretKey = settings.DEV_SECRET_KEY
     secretPass = settings.DEV_SECRET_PASS
     URL = "https://development.belvo.com"
+elif BELVO_ENV == "production":
+    secretKey = settings.PROD_SECRET_KEY
+    secretPass = settings.PROD_SECRET_PASS
+    URL = "https://api.belvo.com"
 
 
 # Generate access token for connect widget

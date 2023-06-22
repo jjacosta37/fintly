@@ -192,7 +192,7 @@ def transactions_historical_update_webhook(request):
             link_id=link, days_of_transactions=120)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
         mp.track(user_link.user.username, 'Historical Update Webhook', {
-            'Data': historical_data
+            'Webhook Data': historical_data, 'Get Transactions': len(transactions)
         })
 
         print('Transactions added')
@@ -214,7 +214,7 @@ def new_transactions_webhook(request):
     if (webhook_type == "TRANSACTIONS" and webhook_code in ('new_transactions_available')):
         user_link = UserLink.objects.get(link_id=link)
         transactions = belvo_api.get_transactions(
-            link_id=link, days_of_transactions=4)
+            link_id=link, days_of_transactions=3)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
         print('Transactions added')
 
