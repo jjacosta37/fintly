@@ -194,10 +194,9 @@ def transactions_historical_update_webhook(request):
         mp.track(user_link.user.username, 'Historical Update Webhook', {
             'Webhook Data': historical_data, 'Get Transactions': len(transactions)
         })
+        print("--- Historical Transactions added in %s seconds ---" %
+              (time.time() - start_time))
 
-        print('Transactions added')
-
-    print("--- %s seconds ---" % (time.time() - start_time))
     return Response()
 
 
@@ -216,9 +215,9 @@ def new_transactions_webhook(request):
         transactions = belvo_api.get_transactions(
             link_id=link, days_of_transactions=3)
         belvo_api.addTransactionsToDB(transactions, user_link.user)
-        print('Transactions added')
+        print("--- New Transactions added in %s seconds ---" %
+              (time.time() - start_time))
 
-    print("--- %s seconds ---" % (time.time() - start_time))
     return Response()
 
 
