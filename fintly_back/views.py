@@ -40,7 +40,7 @@ def montlhy_categories(request):
     categories_map = {i.strftime("%Y-%m"): categories_by_month(i)
                       for i in categories_month_list}
     month_list = python_functions.last_twelveMonths_list()
-    response = {i: categories_map.get(i) or {'N/A': 0.0} for i in month_list}
+    response = {i: categories_map.get(i) or {} for i in month_list}
     return Response(response)
 
 
